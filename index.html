@@ -6,7 +6,6 @@
   <title>All-in-One Toolkit</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root {
@@ -379,77 +378,44 @@
       </div>
     </div>
 
-    <!-- QR Code Generator -->
-
+    <!-- QR Code Generator Section -->
     <div id="qr" class="section">
-  <h2 id="qrTitle">🔲 QR Code Generator</h2>
-  <div class="toolbox">
-    <div class="form-group">
-      <label for="qrText" id="qrLabel">Enter text or URL:</label>
-      <input type="text" id="qrText" class="form-control" placeholder="https://example.com">
+      <h2 id="qrTitle">🔲 QR Code Generator</h2>
+      <div class="toolbox">
+        <div class="form-group">
+          <label for="qrText" id="qrLabel">Enter text or URL:</label>
+          <input type="text" id="qrText" class="form-control" placeholder="https://example.com">
+        </div>
+        
+        <div class="color-controls">
+          <div class="color-option">
+            <label>Color Style:</label>
+            <select id="colorStyle" class="form-control">
+              <option value="solid">Solid Color</option>
+              <option value="gradient">Gradient</option>
+            </select>
+          </div>
+          <div class="color-option">
+            <label for="qrColor" id="qrColorLabel">Primary Color:</label>
+            <input type="color" id="qrColor" value="#000000" class="color-picker">
+          </div>
+          <div class="color-option" id="gradientColorOption" style="display:none">
+            <label for="gradientColor" id="gradientColorLabel">Secondary Color:</label>
+            <input type="color" id="gradientColor" value="#ff0000" class="color-picker">
+          </div>
+        </div>
+        
+        <button onclick="generateQRCode()" class="btn btn-block" id="generateQrBtn">
+          <i class="fas fa-qrcode"></i> Generate QR Code
+        </button>
+        
+        <canvas id="qrCanvas" class="qr-canvas" width="300" height="300"></canvas>
+        
+        <a id="downloadQR" class="btn btn-success btn-block" style="display: none;">
+          <i class="fas fa-download"></i> <span id="downloadQrText">Download QR Code</span>
+        </a>
+      </div>
     </div>
-    
-    <!-- Updated Gradient Color Picker -->
-    <div class="color-controls">
-      <div class="color-option">
-        <label>Color Style:</label>
-        <select id="colorStyle" class="form-control">
-          <option value="solid">Solid Color</option>
-          <option value="gradient">Gradient</option>
-        </select>
-      </div>
-      <div class="color-option">
-        <label for="qrColor" id="qrColorLabel">Primary Color:</label>
-        <input type="color" id="qrColor" value="#000000" class="color-picker">
-      </div>
-      <div class="color-option" id="gradientColorOption" style="display:none">
-        <label for="gradientColor" id="gradientColorLabel">Secondary Color:</label>
-        <input type="color" id="gradientColor" value="#ff0000" class="color-picker">
-      </div>
-    </div>
-    
-    <button onclick="generateQRCode()" class="btn btn-block" id="generateQrBtn">
-      <i class="fas fa-qrcode"></i> Generate QR Code
-    </button>
-    
-    <canvas id="qrCanvas" class="qr-canvas" width="300" height="300"></canvas>
-  </div>
-</div>
-
-<script>
-  // Toggle gradient color picker visibility
-  document.getElementById('colorStyle').addEventListener('change', function() {
-    const gradientOption = document.getElementById('gradientColorOption');
-    gradientOption.style.display = this.value === 'gradient' ? 'block' : 'none';
-  });
-
-  // Updated generateQRCode function (conceptual)
-  function generateQRCode() {
-    const text = document.getElementById('qrText').value;
-    const colorStyle = document.getElementById('colorStyle').value;
-    const primaryColor = document.getElementById('qrColor').value;
-    const secondaryColor = document.getElementById('gradientColor').value;
-    const canvas = document.getElementById('qrCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Generate QR code here (using your library)
-    // For gradient effect:
-    if(colorStyle === 'gradient') {
-      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-      gradient.addColorStop(0, primaryColor);
-      gradient.addColorStop(1, secondaryColor);
-      ctx.fillStyle = gradient;
-    } else {
-      ctx.fillStyle = primaryColor;
-    }
-    
-    // Draw QR code modules using the selected fillStyle
-    // ... (your existing QR drawing logic)
-  }
-</script>
 
     <!-- vCard Generator Section -->
     <div id="vcard" class="section">
@@ -487,8 +453,6 @@
         <a id="vcardDownload" class="btn btn-success btn-block" style="display: none;">
           <i class="fas fa-download"></i> Download vCard
         </a>
-        
-        <canvas id="vcardQR" class="qr-canvas" style="display: none;"></canvas>
       </div>
     </div>
 
@@ -534,9 +498,10 @@
         downloadIcs: "Download ICS Calendar",
         qrTitle: "🔲 QR Code Generator",
         qrLabel: "Enter text or URL:",
-        qrColorLabel: "QR Color:",
-        bgColorLabel: "Background:",
+        qrColorLabel: "Primary Color:",
+        gradientColorLabel: "Secondary Color:",
         generateQrBtn: "Generate QR Code",
+        downloadQrText: "Download QR Code",
         vcardTitle: "📇 vCard Generator",
         nameLabel: "Full Name:",
         phoneLabel: "Phone:",
@@ -545,14 +510,15 @@
         websiteLabel: "Website:",
         generateVcardBtn: "Generate vCard",
         downloadVcard: "Download vCard",
-        aboutTitle: "Vasyl Madei",
+        aboutTitle: "👤 About",
         aboutText1: "I'm a marketing professional with a background in office administration, technical support, and product marketing. I hold a Bachelor's degree in Marketing and am currently studying for my Master's in Marketing Management.",
         aboutText2: "My work centers around supporting product launches, creating and maintaining marketing assets, and improving content quality using tools like Power BI, Excel, SAP, and Power Platform. I focus on practical solutions, clear communication, and making marketing more effective through technology.",
         aboutText3: "I speak Ukrainian, Polish, English, and German, and I'm learning Spanish and Chinese. I enjoy working in international environments and collaborating across teams.",
         aboutText4: "Outside of work, I'm passionate about travel, reading, exploring technology, staying active, and organizing events. I'm always looking to grow, improve, and take on new challenges.",
         linkedinText: "LinkedIn Profile",
         noFileError: "Please upload an Excel file first",
-        fileError: "Error processing file: "
+        fileError: "Error processing file: ",
+        qrRequired: "is required"
       },
       pl: {
         mainTitle: "🌐 Zestaw narzędzi",
@@ -574,25 +540,27 @@
         downloadIcs: "Pobierz kalendarz ICS",
         qrTitle: "🔲 Generator kodu QR",
         qrLabel: "Wpisz tekst lub URL:",
-        qrColorLabel: "Kolor QR:",
-        bgColorLabel: "Tło:",
+        qrColorLabel: "Kolor podstawowy:",
+        gradientColorLabel: "Kolor dodatkowy:",
         generateQrBtn: "Generuj kod QR",
-        vcardTitle: "📇 Generator wizytówki",
-        nameLabel: "Pełne imię i nazwisko:",
+        downloadQrText: "Pobierz kod QR",
+        vcardTitle: "📇 Generator wizytówek",
+        nameLabel: "Pełne imię:",
         phoneLabel: "Telefon:",
         emailLabel: "Email:",
         companyLabel: "Firma:",
         websiteLabel: "Strona internetowa:",
         generateVcardBtn: "Generuj wizytówkę",
         downloadVcard: "Pobierz wizytówkę",
-        aboutTitle: "Vasyl Madei",
-aboutText1: "Jestem specjalistą ds. marketingu z doświadczeniem w administracji biurowej, wsparciu technicznym oraz marketingu produktowym. Posiadam tytuł licencjata z marketingu i obecnie kontynuuję studia magisterskie na kierunku Zarządzanie Marketingiem.",
-aboutText2: "W swojej pracy wspieram wprowadzanie produktów na rynek, tworzę i utrzymuję materiały marketingowe oraz dbam o jakość treści, korzystając z narzędzi takich jak Power BI, Excel, SAP czy Power Platform. Skupiam się na praktycznych rozwiązaniach, przejrzystej komunikacji i zwiększaniu efektywności działań marketingowych dzięki technologii.",
-aboutText3: "Posługuję się językiem ukraińskim, polskim, angielskim i niemieckim, a aktualnie uczę się również hiszpańskiego i chińskiego. Cenię sobie pracę w międzynarodowym środowisku oraz współpracę międzyzespołową.",
-aboutText4: "Poza pracą pasjonuję się podróżami, literaturą, nowymi technologiami, aktywnym stylem życia oraz organizacją wydarzeń. Zawsze dążę do rozwoju, samodoskonalenia i podejmowania nowych wyzwań.",
+        aboutTitle: "👤 O mnie",
+        aboutText1: "Jestem specjalistą ds. marketingu z doświadczeniem w administracji biurowej, wsparciu technicznym oraz marketingu produktowym. Posiadam tytuł licencjata z marketingu i obecnie kontynuuję studia magisterskie na kierunku Zarządzanie Marketingiem.",
+        aboutText2: "W swojej pracy wspieram wprowadzanie produktów na rynek, tworzę i utrzymuję materiały marketingowe oraz dbam o jakość treści, korzystając z narzędzi takich jak Power BI, Excel, SAP i Power Platform. Skupiam się na praktycznych rozwiązaniach, przejrzystej komunikacji i zwiększaniu efektywności marketingu poprzez technologię.",
+        aboutText3: "Posługuję się językiem ukraińskim, polskim, angielskim i niemieckim, a obecnie uczę się hiszpańskiego i chińskiego. Cenię sobie pracę w międzynarodowym środowisku i współpracę międzyzespołową.",
+        aboutText4: "Poza pracą pasjonuję się podróżami, czytaniem, nowymi technologiami, aktywnością fizyczną i organizacją wydarzeń. Zawsze dążę do rozwoju, doskonalenia się i podejmowania nowych wyzwań.",
         linkedinText: "Profil LinkedIn",
         noFileError: "Najpierw prześlij plik Excel",
-        fileError: "Błąd przetwarzania pliku: "
+        fileError: "Błąd przetwarzania pliku: ",
+        qrRequired: "jest wymagane"
       },
       de: {
         mainTitle: "🌐 All-in-One Toolkit",
@@ -614,9 +582,10 @@ aboutText4: "Poza pracą pasjonuję się podróżami, literaturą, nowymi techno
         downloadIcs: "ICS-Kalender herunterladen",
         qrTitle: "🔲 QR-Code-Generator",
         qrLabel: "Text oder URL eingeben:",
-        qrColorLabel: "QR-Farbe:",
-        bgColorLabel: "Hintergrund:",
+        qrColorLabel: "Primärfarbe:",
+        gradientColorLabel: "Sekundärfarbe:",
         generateQrBtn: "QR-Code generieren",
+        downloadQrText: "QR-Code herunterladen",
         vcardTitle: "📇 vCard-Generator",
         nameLabel: "Vollständiger Name:",
         phoneLabel: "Telefon:",
@@ -625,14 +594,15 @@ aboutText4: "Poza pracą pasjonuję się podróżami, literaturą, nowymi techno
         websiteLabel: "Webseite:",
         generateVcardBtn: "vCard generieren",
         downloadVcard: "vCard herunterladen",
-        aboutTitle: "Vasyl Madei",
-        aboutText1: "Ich bin Marketingexperte mit Erfahrung in der Büroverwaltung, technischen Unterstützung und im Produktmarketing. Ich habe einen Bachelorabschluss in Marketing und studiere derzeit im Masterstudiengang Marketingmanagement.",
-aboutText2: "Meine Arbeit konzentriert sich auf die Unterstützung bei Produkteinführungen, die Erstellung und Pflege von Marketingmaterialien sowie die Verbesserung der Inhaltsqualität mithilfe von Tools wie Power BI, Excel, SAP und der Power Platform. Ich lege besonderen Wert auf praktische Lösungen, klare Kommunikation und die effektive Nutzung von Technologie im Marketing.",
-aboutText3: "Ich spreche Ukrainisch, Polnisch, Englisch und Deutsch und lerne derzeit Spanisch und Chinesisch. Ich arbeite gerne in internationalen Umgebungen und schätze die Zusammenarbeit mit vielfältigen Teams.",
-aboutText4: "Abseits der Arbeit begeistere ich mich für Reisen, Lesen, Technologie, Fitness und die Organisation von Veranstaltungen. Ich strebe stets danach, mich weiterzuentwickeln, Neues zu lernen und neue Herausforderungen anzunehmen.",
-linkedinText: "LinkedIn-Profil",
+        aboutTitle: "👤 Über mich",
+        aboutText1: "Ich bin Marketingexperte mit Erfahrung in der Büroverwaltung, technischer Unterstützung und Produktmarketing. Ich habe einen Bachelor-Abschluss in Marketing und studiere derzeit einen Master in Marketing Management.",
+        aboutText2: "Meine Arbeit konzentriert sich auf die Unterstützung von Produkteinführungen, die Erstellung und Pflege von Marketingmaterialien sowie die Verbesserung der Inhaltsqualität mit Tools wie Power BI, Excel, SAP und Power Platform. Ich konzentriere mich auf praktische Lösungen, klare Kommunikation und effektiveres Marketing durch Technologie.",
+        aboutText3: "Ich spreche Ukrainisch, Polnisch, Englisch und Deutsch und lerne derzeit Spanisch und Chinesisch. Ich schätze die Arbeit in internationalen Umgebungen und die teamübergreifende Zusammenarbeit.",
+        aboutText4: "Außerhalb der Arbeit begeistere ich mich für Reisen, Lesen, Technologie, Fitness und die Organisation von Veranstaltungen. Ich strebe ständig danach, mich weiterzuentwickeln, mich zu verbessern und neue Herausforderungen anzunehmen.",
+        linkedinText: "LinkedIn-Profil",
         noFileError: "Bitte laden Sie zuerst eine Excel-Datei hoch",
-        fileError: "Fehler beim Verarbeiten der Datei: "
+        fileError: "Fehler beim Verarbeiten der Datei: ",
+        qrRequired: "ist erforderlich"
       },
       uk: {
         mainTitle: "🌐 Універсальний набір інструментів",
@@ -654,9 +624,10 @@ linkedinText: "LinkedIn-Profil",
         downloadIcs: "Завантажити календар ICS",
         qrTitle: "🔲 Генератор QR-кодів",
         qrLabel: "Введіть текст або URL:",
-        qrColorLabel: "Колір QR:",
-        bgColorLabel: "Фон:",
+        qrColorLabel: "Основний колір:",
+        gradientColorLabel: "Додатковий колір:",
         generateQrBtn: "Згенерувати QR-код",
+        downloadQrText: "Завантажити QR-код",
         vcardTitle: "📇 Генератор візиток",
         nameLabel: "Повне ім'я:",
         phoneLabel: "Телефон:",
@@ -665,21 +636,22 @@ linkedinText: "LinkedIn-Profil",
         websiteLabel: "Вебсайт:",
         generateVcardBtn: "Згенерувати візитку",
         downloadVcard: "Завантажити візитку",
-        aboutTitle: "Vasyl Madei",
-       aboutText1: "Я маркетолог із досвідом у сфері офісного адміністрування, технічної підтримки та продуктового маркетингу. Маю ступінь бакалавра з маркетингу та наразі здобуваю магістерську освіту за спеціальністю «Маркетинговий менеджмент».",
-aboutText2: "Моя робота зосереджена на підтримці запусків продуктів, створенні та супроводі маркетингових матеріалів, а також на підвищенні якості контенту за допомогою інструментів, таких як Power BI, Excel, SAP і Power Platform. Я роблю акцент на практичних рішеннях, чіткому спілкуванні та підвищенні ефективності маркетингу через технології.",
-aboutText3: "Володію українською, польською, англійською та німецькою мовами, а також вивчаю іспанську та китайську. Мені подобається працювати в міжнародному середовищі та співпрацювати з мультидисциплінарними командами.",
-aboutText4: "У вільний час захоплююся подорожами, читанням, новими технологіями, спортом і організацією заходів. Я завжди прагну до саморозвитку, вдосконалення та нових викликів.",
+        aboutTitle: "👤 Про мене",
+        aboutText1: "Я маркетолог з досвідом у сфері офісного адміністрування, технічної підтримки та продуктівого маркетингу. Маю ступінь бакалавра з маркетингу та зараз навчаюся на магістратурі з маркетингового менеджменту.",
+        aboutText2: "Моя робота зосереджена на підтримці запусків продуктів, створенні та підтримці маркетингових матеріалів, а також покращенні якості контенту за допомогою таких інструментів, як Power BI, Excel, SAP та Power Platform. Я зосереджуюсь на практичних рішеннях, чіткій комунікації та підвищенні ефективності маркетингу за допомогою технологій.",
+        aboutText3: "Я володію українською, польською, англійською та німецькою мовами, а зараз вивчаю іспанську та китайську. Мені подобається працювати в міжнародному середовищі та співпрацювати з різними командами.",
+        aboutText4: "Поза роботою я захоплююся подорожами, читанням, технологіями, спортом та організацією заходів. Я завжди прагну розвиватися, вдосконалюватися та приймати нові виклики.",
         linkedinText: "Профіль LinkedIn",
         noFileError: "Будь ласка, спочатку завантажте файл Excel",
-        fileError: "Помилка обробки файлу: "
+        fileError: "Помилка обробки файлу: ",
+        qrRequired: "обов'язкове поле"
       },
       es: {
         mainTitle: "🌐 Kit de herramientas todo en uno",
         languageLabel: "🌍 Idioma:",
         btnIcal: "📅 XLS a iCal",
         btnQr: "🔲 Código QR",
-        btnVcard: "📇 Tarjeta de visita",
+        btnVcard: "📇 Tarjeta de contacto",
         btnAbout: "👤 Sobre mí",
         icalTitle: "📅 Convertidor de XLS a iCal",
         icalHowTo: "Instrucciones:",
@@ -694,10 +666,11 @@ aboutText4: "У вільний час захоплююся подорожами,
         downloadIcs: "Descargar calendario ICS",
         qrTitle: "🔲 Generador de códigos QR",
         qrLabel: "Ingrese texto o URL:",
-        qrColorLabel: "Color QR:",
-        bgColorLabel: "Fondo:",
+        qrColorLabel: "Color primario:",
+        gradientColorLabel: "Color secundario:",
         generateQrBtn: "Generar código QR",
-        vcardTitle: "📇 Generador de tarjetas de visita",
+        downloadQrText: "Descargar código QR",
+        vcardTitle: "📇 Generador de tarjetas de contacto",
         nameLabel: "Nombre completo:",
         phoneLabel: "Teléfono:",
         emailLabel: "Correo electrónico:",
@@ -705,14 +678,15 @@ aboutText4: "У вільний час захоплююся подорожами,
         websiteLabel: "Sitio web:",
         generateVcardBtn: "Generar tarjeta",
         downloadVcard: "Descargar tarjeta",
-        aboutTitle: "Vasyl Madei",
-        aboutText1: "Soy un profesional del marketing con experiencia en administración de oficinas, soporte técnico y marketing de productos. Tengo una licenciatura en Marketing y actualmente estudio una Maestría en Gestión de Marketing.",
-aboutText2: "Mi trabajo se centra en apoyar lanzamientos de productos, crear y mantener materiales de marketing, y mejorar la calidad del contenido utilizando herramientas como Power BI, Excel, SAP y Power Platform. Me enfoco en soluciones prácticas, comunicación clara y en aumentar la eficacia del marketing mediante el uso de la tecnología.",
-aboutText3: "Hablo ucraniano, polaco, inglés y alemán, y actualmente estoy aprendiendo español y chino. Disfruto trabajar en entornos internacionales y colaborar con equipos diversos.",
-aboutText4: "Fuera del trabajo, me apasiona viajar, leer, explorar nuevas tecnologías, mantenerme activo y organizar eventos. Siempre busco crecer, mejorar y asumir nuevos desafíos.",
+        aboutTitle: "👤 Sobre mí",
+        aboutText1: "Soy un profesional de marketing con experiencia en administración de oficinas, soporte técnico y marketing de productos. Tengo una licenciatura en Marketing y actualmente estoy estudiando una Maestría en Gestión de Marketing.",
+        aboutText2: "Mi trabajo se centra en apoyar lanzamientos de productos, crear y mantener materiales de marketing y mejorar la calidad del contenido utilizando herramientas como Power BI, Excel, SAP y Power Platform. Me enfoco en soluciones prácticas, comunicación clara y hacer que el marketing sea más efectivo a través de la tecnología.",
+        aboutText3: "Hablo ucraniano, polaco, inglés y alemán, y actualmente estoy aprendiendo español y chino. Disfruto trabajar en entornos internacionales y colaborar entre equipos.",
+        aboutText4: "Fuera del trabajo, me apasiona viajar, leer, explorar tecnología, mantenerme activo y organizar eventos. Siempre estoy buscando crecer, mejorar y asumir nuevos desafíos.",
         linkedinText: "Perfil de LinkedIn",
         noFileError: "Por favor, suba primero un archivo de Excel",
-        fileError: "Error al procesar el archivo: "
+        fileError: "Error al procesar el archivo: ",
+        qrRequired: "es requerido"
       },
       zh: {
         mainTitle: "🌐 多功能工具包",
@@ -734,9 +708,10 @@ aboutText4: "Fuera del trabajo, me apasiona viajar, leer, explorar nuevas tecnol
         downloadIcs: "下载 ICS 日历",
         qrTitle: "🔲 二维码生成器",
         qrLabel: "输入文本或网址:",
-        qrColorLabel: "二维码颜色:",
-        bgColorLabel: "背景:",
+        qrColorLabel: "主要颜色:",
+        gradientColorLabel: "次要颜色:",
         generateQrBtn: "生成二维码",
+        downloadQrText: "下载二维码",
         vcardTitle: "📇 电子名片生成器",
         nameLabel: "全名:",
         phoneLabel: "电话:",
@@ -745,14 +720,15 @@ aboutText4: "Fuera del trabajo, me apasiona viajar, leer, explorar nuevas tecnol
         websiteLabel: "网站:",
         generateVcardBtn: "生成电子名片",
         downloadVcard: "下载电子名片",
-        aboutTitle: "Vasyl Madei (马维思)",
+        aboutTitle: "👤 关于我",
         aboutText1: "我是一名市场营销专业人士，拥有办公室管理、技术支持和产品营销方面的背景。我取得了市场营销学士学位，目前正在攻读市场营销管理硕士学位。",
-aboutText2: "我的工作重点包括支持产品发布、创建并维护营销资产，以及借助 Power BI、Excel、SAP 和 Power Platform 等工具提升内容质量。我注重实用的解决方案、清晰的沟通，并致力于通过技术提升营销的效果。",
-aboutText3: "我会说乌克兰语、波兰语、英语和德语，目前正在学习西班牙语和中文。我热衷于在国际环境中工作，并乐于与不同团队展开合作。",
-aboutText4: "工作之余，我喜欢旅行、阅读、探索科技、保持活跃并组织各类活动。我始终致力于不断成长、持续提升，并勇于迎接新的挑战。",
+        aboutText2: "我的工作重点包括支持产品发布、创建并维护营销资产，以及借助 Power BI、Excel、SAP 和 Power Platform 等工具提升内容质量。我注重实用的解决方案、清晰的沟通，并致力于通过技术提升营销的效果。",
+        aboutText3: "我会说乌克兰语、波兰语、英语和德语，目前正在学习西班牙语和中文。我热衷于在国际环境中工作，并乐于与不同团队展开合作。",
+        aboutText4: "工作之余，我喜欢旅行、阅读、探索科技、保持活跃并组织各类活动。我始终致力于不断成长、持续提升，并勇于迎接新的挑战。",
         linkedinText: "LinkedIn 个人资料",
         noFileError: "请先上传 Excel 文件",
-        fileError: "文件处理错误: "
+        fileError: "文件处理错误: ",
+        qrRequired: "是必填项"
       }
     };
 
@@ -790,8 +766,9 @@ aboutText4: "工作之余，我喜欢旅行、阅读、探索科技、保持活�
       document.getElementById("qrTitle").textContent = t.qrTitle;
       document.getElementById("qrLabel").textContent = t.qrLabel;
       document.getElementById("qrColorLabel").textContent = t.qrColorLabel;
-      document.getElementById("bgColorLabel").textContent = t.bgColorLabel;
+      document.getElementById("gradientColorLabel").textContent = t.gradientColorLabel;
       document.getElementById("generateQrBtn").innerHTML = `<i class="fas fa-qrcode"></i> ${t.generateQrBtn}`;
+      document.getElementById("downloadQrText").textContent = t.downloadQrText;
       document.getElementById("qrText").placeholder = t.qrLabel.replace(':', '');
       
       // Update vCard section
@@ -952,45 +929,74 @@ aboutText4: "工作之余，我喜欢旅行、阅读、探索科技、保持活�
     function generateQRCode() {
       const lang = document.getElementById("languageSelect").value;
       const t = translations[lang];
-      const qrText = document.getElementById('qrText').value.trim();
+      const text = document.getElementById('qrText').value.trim();
+      const colorStyle = document.getElementById('colorStyle').value;
+      const primaryColor = document.getElementById('qrColor').value;
+      const secondaryColor = document.getElementById('gradientColor').value;
+      const canvas = document.getElementById('qrCanvas');
+      const ctx = canvas.getContext('2d');
+      const downloadBtn = document.getElementById('downloadQR');
       
-      if (!qrText) {
-        alert(t.qrLabel.replace(':', '') + " " + (lang === 'en' ? "is required" : "jest wymagane"));
+      if (!text) {
+        alert(t.qrLabel.replace(':', '') + " " + t.qrRequired);
         return;
       }
       
-      const qrColor = document.getElementById('qrColor').value;
-      const bgColor = document.getElementById('bgColor').value;
-      const canvas = document.getElementById('qrCanvas');
-      const ctx = canvas.getContext('2d');
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Generate QR code
-      const qr = qrcode(0, 'H');
-      qr.addData(qrText);
-      qr.make();
-      
-      // Set canvas size
-      const size = 300;
-      canvas.width = canvas.height = size;
-      const tileSize = size / qr.getModuleCount();
-      
-      // Draw background
-      ctx.fillStyle = bgColor;
-      ctx.fillRect(0, 0, size, size);
-      
-      // Draw QR code modules
-      ctx.fillStyle = qrColor;
-      for (let r = 0; r < qr.getModuleCount(); r++) {
-        for (let c = 0; c < qr.getModuleCount(); c++) {
-          if (qr.isDark(r, c)) {
-            ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+      try {
+        const qr = qrcode(0, 'H'); // Error correction level: High
+        qr.addData(text);
+        qr.make();
+        
+        // Calculate module size
+        const moduleCount = qr.getModuleCount();
+        const tileSize = Math.min(canvas.width, canvas.height) / moduleCount;
+        
+        // Draw white background
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Set fill style (solid or gradient)
+        let fillStyle;
+        if (colorStyle === 'gradient') {
+          const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+          gradient.addColorStop(0, primaryColor);
+          gradient.addColorStop(1, secondaryColor);
+          fillStyle = gradient;
+        } else {
+          fillStyle = primaryColor;
+        }
+        
+        // Draw QR code modules
+        ctx.fillStyle = fillStyle;
+        for (let r = 0; r < moduleCount; r++) {
+          for (let c = 0; c < moduleCount; c++) {
+            if (qr.isDark(r, c)) {
+              ctx.fillRect(
+                c * tileSize + (canvas.width - moduleCount * tileSize)/2, 
+                r * tileSize + (canvas.height - moduleCount * tileSize)/2, 
+                tileSize, 
+                tileSize
+              );
+            }
           }
         }
+        
+        // Set up download button
+        downloadBtn.href = canvas.toDataURL('image/png');
+        downloadBtn.download = text.substring(0, 20).replace(/[^a-z0-9]/gi, '_') + '_qrcode.png';
+        downloadBtn.style.display = 'block';
+        
+      } catch (error) {
+        console.error("QR generation error:", error);
+        alert("Error generating QR code: " + error.message);
       }
     }
 
     /**
-     * Generates vCard with QR code
+     * Generates vCard with contact information
      */
     function generateVCard() {
       const lang = document.getElementById("languageSelect").value;
@@ -1004,7 +1010,7 @@ aboutText4: "工作之余，我喜欢旅行、阅读、探索科技、保持活�
         alert(t.nameLabel.replace(':', '') + ", " + 
               t.phoneLabel.replace(':', '') + ", " + 
               t.emailLabel.replace(':', '') + " " + 
-              (lang === 'en' ? "are required" : "są wymagane"));
+              t.qrRequired);
         return;
       }
       
@@ -1024,16 +1030,6 @@ aboutText4: "工作之余，我喜欢旅行、阅读、探索科技、保持活�
       link.href = url;
       link.download = `${name.replace(/\s+/g, '_')}_contact.vcf`;
       link.style.display = 'block';
-      
-      // Generate QR code for vCard
-      const qr = new QRious({ 
-        element: document.getElementById('vcardQR'), 
-        value: vcard, 
-        size: 200,
-        background: '#ffffff',
-        foreground: '#000000'
-      });
-      document.getElementById('vcardQR').style.display = 'block';
     }
 
     // Initialize the page
@@ -1044,6 +1040,16 @@ aboutText4: "工作之余，我喜欢旅行、阅读、探索科技、保持活�
       const defaultLang = supportedLangs.includes(browserLang) ? browserLang : 'en';
       document.getElementById("languageSelect").value = defaultLang;
       setLanguage();
+      
+      // Initialize QR code section
+      document.getElementById('colorStyle').addEventListener('change', function() {
+        const gradientOption = document.getElementById('gradientColorOption');
+        gradientOption.style.display = this.value === 'gradient' ? 'block' : 'none';
+      });
+      
+      // Generate default QR code
+      document.getElementById('qrText').value = 'https://example.com';
+      generateQRCode();
       
       showSection('ical'); // Show calendar converter by default
     };
