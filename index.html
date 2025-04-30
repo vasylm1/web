@@ -379,33 +379,77 @@
       </div>
     </div>
 
-    <!-- QR Code Generator Section -->
+    <!-- QR Code Generator -->
+
     <div id="qr" class="section">
-      <h2 id="qrTitle">🔲 QR Code Generator</h2>
-      <div class="toolbox">
-        <div class="form-group">
-          <label for="qrText" id="qrLabel">Enter text or URL:</label>
-          <input type="text" id="qrText" class="form-control" placeholder="https://example.com">
-        </div>
-        
-        <div class="color-controls">
-          <div class="color-option">
-            <label for="qrColor" id="qrColorLabel">QR Color:</label>
-            <input type="color" id="qrColor" value="#000000" class="color-picker">
-          </div>
-          <div class="color-option">
-            <label for="bgColor" id="bgColorLabel">Background:</label>
-            <input type="color" id="bgColor" value="#ffffff" class="color-picker">
-          </div>
-        </div>
-        
-        <button onclick="generateQRCode()" class="btn btn-block" id="generateQrBtn">
-          <i class="fas fa-qrcode"></i> Generate QR Code
-        </button>
-        
-        <canvas id="qrCanvas" class="qr-canvas" width="300" height="300"></canvas>
+  <h2 id="qrTitle">🔲 QR Code Generator</h2>
+  <div class="toolbox">
+    <div class="form-group">
+      <label for="qrText" id="qrLabel">Enter text or URL:</label>
+      <input type="text" id="qrText" class="form-control" placeholder="https://example.com">
+    </div>
+    
+    <!-- Updated Gradient Color Picker -->
+    <div class="color-controls">
+      <div class="color-option">
+        <label>Color Style:</label>
+        <select id="colorStyle" class="form-control">
+          <option value="solid">Solid Color</option>
+          <option value="gradient">Gradient</option>
+        </select>
+      </div>
+      <div class="color-option">
+        <label for="qrColor" id="qrColorLabel">Primary Color:</label>
+        <input type="color" id="qrColor" value="#000000" class="color-picker">
+      </div>
+      <div class="color-option" id="gradientColorOption" style="display:none">
+        <label for="gradientColor" id="gradientColorLabel">Secondary Color:</label>
+        <input type="color" id="gradientColor" value="#ff0000" class="color-picker">
       </div>
     </div>
+    
+    <button onclick="generateQRCode()" class="btn btn-block" id="generateQrBtn">
+      <i class="fas fa-qrcode"></i> Generate QR Code
+    </button>
+    
+    <canvas id="qrCanvas" class="qr-canvas" width="300" height="300"></canvas>
+  </div>
+</div>
+
+<script>
+  // Toggle gradient color picker visibility
+  document.getElementById('colorStyle').addEventListener('change', function() {
+    const gradientOption = document.getElementById('gradientColorOption');
+    gradientOption.style.display = this.value === 'gradient' ? 'block' : 'none';
+  });
+
+  // Updated generateQRCode function (conceptual)
+  function generateQRCode() {
+    const text = document.getElementById('qrText').value;
+    const colorStyle = document.getElementById('colorStyle').value;
+    const primaryColor = document.getElementById('qrColor').value;
+    const secondaryColor = document.getElementById('gradientColor').value;
+    const canvas = document.getElementById('qrCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Generate QR code here (using your library)
+    // For gradient effect:
+    if(colorStyle === 'gradient') {
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, primaryColor);
+      gradient.addColorStop(1, secondaryColor);
+      ctx.fillStyle = gradient;
+    } else {
+      ctx.fillStyle = primaryColor;
+    }
+    
+    // Draw QR code modules using the selected fillStyle
+    // ... (your existing QR drawing logic)
+  }
+</script>
 
     <!-- vCard Generator Section -->
     <div id="vcard" class="section">
