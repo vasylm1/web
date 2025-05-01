@@ -861,48 +861,157 @@ aboutText4: "工作之余，我喜欢旅行、阅读、探索科技、保持活�
     }
 
     /**
-     * Formats date string for iCal (YYYYMMDDTHHMMSS)
-     */
-    function formatDate(dateStr) {
-      if (!dateStr) return '';
-      
-      // Handle different date formats
-      let date;
-      if (typeof dateStr === 'string') {
-        // Try parsing as ISO string or local format
-        date = new Date(dateStr);
-        if (isNaN(date.getTime())) {
-          // Try parsing Excel serial date (number of days since 1900)
-          const excelDate = parseFloat(dateStr);
-          if (!isNaN(excelDate)) {
-            date = new Date((excelDate - 25569) * 86400 * 1000); // Convert Excel date to JS date
-          }
+ * Converts Excel file to iCal format (using local time)
+ */
+function convertToIcs() {
+  const lang = document.getElementById("languageSelect").value;
+  const t = translations[lang];
+  const fileInput = document.getElementById('fileInput');
+  
+  if (!fileInput.files.length) {
+    alert(t.noFileError);
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      // Parse Excel file
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, { type: 'array' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(ws, { header: 1 });
+
+      // Generate iCal content
+      let icsContent = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//All-in-One Toolkit//EN",
+        "CALSCALE:GREGORIAN"
+      ].join("\n");
+
+      // Process each row (skip header)
+      for (let i = 1; i < json.length; i++) {
+        const row = json[i];
+        if (!row[0]) continue; // Skip empty rows
+
+        // Extract event details (with fallbacks)
+        const startDate = formatLocalDateForIcal(row[0]);
+        const endDate = formatLocalDateForIcal(row[1] || row[0]); // Use start if no end
+        const summary = escapeIcalText(row[2] || "Event");
+        const description = escapeIcalText(row[3] || "");
+        const location = escapeIcalText(row[4] || "");
+
+        if (!startDate) {
+          console.warn(`Skipping row ${i+1}: Invalid start date`);
+          continue;
         }
-      } else if (typeof dateStr === 'number') {
-        // Handle Excel serial dates
-        date = new Date((dateStr - 25569) * 86400 * 1000);
-      } else if (dateStr instanceof Date) {
-        date = dateStr;
+
+        // Add event to iCal
+        icsContent += [
+          "\nBEGIN:VEVENT",
+          `DTSTART:${startDate}`,
+          `DTEND:${endDate}`,
+          `SUMMARY:${summary}`,
+          description && `DESCRIPTION:${description}`,
+          location && `LOCATION:${location}`,
+          "END:VEVENT"
+        ].filter(Boolean).join("\n");
       }
-      
-      if (!date || isNaN(date.getTime())) {
-        console.warn('Invalid date format:', dateStr);
-        return '';
+
+      icsContent += "\nEND:VCALENDAR";
+
+      // Create download link
+      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+      const link = document.getElementById('downloadLink');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'events.ics';
+      link.style.display = 'block';
+    } catch (error) {
+      alert(t.fileError + error.message);
+      console.error(error);
+    }
+  };
+  reader.onerror = function() {
+    alert(t.fileError);
+  };
+  reader.readAsArrayBuffer(fileInput.files[0]);
+}
+
+/**
+ * Formats date for iCal in local time (YYYYMMDDTHHMMSS)
+ */
+function formatLocalDateForIcal(dateStr) {
+  if (!dateStr) return '';
+
+  let date;
+  
+  // Handle string inputs
+  if (typeof dateStr === 'string') {
+    dateStr = dateStr.trim();
+    if (!dateStr) return '';
+
+    // Try ISO format (e.g., "2023-01-01T09:00" or "2023-01-01 09:00")
+    date = new Date(dateStr.replace(' ', 'T'));
+
+    // Try localized formats (DD/MM/YYYY or MM/DD/YYYY)
+    if (isNaN(date.getTime())) {
+      const localizedDate = dateStr.match(/(\d{1,4})[\/-](\d{1,2})[\/-](\d{1,4})/);
+      if (localizedDate) {
+        const [_, day, month, year] = localizedDate;
+        date = new Date(`${year}-${month}-${day}`);
       }
-      
-      // Format as iCal date-time
-      const pad = n => n.toString().padStart(2, '0');
-      const year = date.getFullYear();
-      const month = pad(date.getMonth() + 1);
-      const day = pad(date.getDate());
-      const hours = pad(date.getHours());
-      const minutes = pad(date.getMinutes());
-      const seconds = pad(date.getSeconds());
-      
-      return `${year}${month}${day}T${hours}${minutes}${seconds}`;
     }
 
-    /**
+    // Try Excel serial date as string (e.g., "44927.5")
+    if (isNaN(date.getTime())) {
+      const excelDate = parseFloat(dateStr);
+      if (!isNaN(excelDate)) {
+        date = new Date((excelDate - 25569) * 86400 * 1000);
+      }
+    }
+  }
+  // Handle Excel serial numbers
+  else if (typeof dateStr === 'number') {
+    date = new Date((dateStr - 25569) * 86400 * 1000);
+  }
+  // Handle JS Date objects
+  else if (dateStr instanceof Date) {
+    date = dateStr;
+  }
+
+  // Validate
+  if (!date || isNaN(date.getTime())) {
+    console.warn('Invalid date format:', dateStr);
+    return '';
+  }
+
+  // Format in local time (no UTC conversion)
+  const pad = n => n.toString().padStart(2, '0');
+  return [
+    date.getFullYear(),
+    pad(date.getMonth() + 1),
+    pad(date.getDate()),
+    'T',
+    pad(date.getHours()),
+    pad(date.getMinutes()),
+    pad(date.getSeconds())
+  ].join('');
+}
+
+/**
+ * Escapes text for iCal (commas, semicolons, newlines)
+ */
+function escapeIcalText(text) {
+  return String(text)
+    .replace(/\\/g, '\\\\')
+    .replace(/,/g, '\\,')
+    .replace(/;/g, '\\;')
+    .replace(/\n/g, '\\n');
+}
+  
+      */
+
      * Generates QR code with custom colors
      */
     function generateQRCode() {
